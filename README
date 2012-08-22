@@ -1,0 +1,45 @@
+infinity engine
+===================
+
+RESTful webservice "engine" that allows for autocompletion searches. Currently it is only written in C# but the goal is to
+have a Java and a PHP version 
+
+There are 3 RESTful endpoints that are used to configure, update, and search the
+autocomplete caches:
+
+
+1) /configure
+   POST to this endpoint to configure a new route.  The JSON configuration object is
+    
+    {
+        UpdateURL: "http://urltoretrievedata.com",
+        RecordIdentifier: "Id",
+        AutoCompleteRoute: "NameOfRoute",
+        MaxResults: 50
+    }
+
+    
+    UpdateURL - This is expected to be a RESTful GET call that returns an array of JSON Objects
+    RecordIdentifier - Unique property on the data objects
+    AutoCompleteRoute - Unique identifier that will be used to work with the cache 
+    MaxResults - Limit to what is returns for each search.  This has a hard stop at 1000
+
+
+2) /update/{AutoCompleteRoute}/{UpdateKey}
+    GET endpoint to update the data for the autocomplete cache
+
+    AutoCompleteRoute - The name of the route that was defined in the configuration 
+    UpdateKey - Optional parameter that is used at the end of the update url to limit what has to be updated.  If nothing is provided,
+                it will query retrieve not add anything to the end of the update url and update the whole cache
+    
+3) /search/{AutoCompleteRoute}/{SearchParam}/{ResultLimit}
+    GET endpoint to make an autocomplete search
+
+    AutoCompleteRoute - The name of the route that was defined in the configuration 
+    SearchParam - The search param for the auto complete search
+    ResultLimit - Limit the amount returned.  It will not return more than the MaxResult configured or 1000 which every is first.
+
+
+Testing:
+There are unit and integration tests for all of the services and classes.  There is a node.js server in the testserver directory to aid
+in the testing.
