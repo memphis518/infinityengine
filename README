@@ -19,18 +19,18 @@ autocomplete caches:
     }
 
     
-    UpdateURL - This is expected to be a RESTful GET call that returns an array of JSON Objects
-    RecordIdentifier - Unique property on the data objects
-    AutoCompleteRoute - Unique identifier that will be used to work with the cache 
-    MaxResults - Limit to what is returns for each search.  This has a hard stop at 1000
+  UpdateURL - This is expected to be a RESTful GET call that returns an array of JSON Objects
+  RecordIdentifier - Unique property on the data objects
+  AutoCompleteRoute - Unique identifier that will be used to work with the cache 
+  MaxResults - Limit to what is returns for each search.  This has a hard stop at 1000
 
 
 2) /update/{AutoCompleteRoute}/{UpdateKey}
     GET endpoint to update the data for the autocomplete cache
 
     AutoCompleteRoute - The name of the route that was defined in the configuration 
-    UpdateKey - Optional parameter that is used at the end of the update url to limit what has to be updated.  If nothing is provided,
-                it will query retrieve not add anything to the end of the update url and update the whole cache
+    UpdateKey - Optional parameter that is used at the end of the update url to limit what has to be updated.  If nothing is provided, it will query retrieve not add anything to the end of the update url and update the whole cache
+
     
 3) /search/{AutoCompleteRoute}/{SearchParam}/{ResultLimit}
     GET endpoint to make an autocomplete search
@@ -41,5 +41,4 @@ autocomplete caches:
 
 
 Testing:
-There are unit and integration tests for all of the services and classes.  There is a node.js server in the testserver directory to aid
-in the testing.
+There are unit and integration tests for all of the services and classes.  There is a node.js server in the testserver directory to aid in the testing.
