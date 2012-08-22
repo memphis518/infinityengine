@@ -248,6 +248,51 @@ namespace InfinityEngineTest.UnitTests
 
         }
 
+        [TestMethod]
+        public void TestSearchAutoCompleteCacheWithMaxLimit()
+        {
+            Configuration config = new Configuration();
+            config.AutoCompleteRoute = "testRoute";
+            config.MaxResults = 1;
+            config.RecordIndentifier = "Code";
+            config.UpdateURL = "http://urltoupdatefrom";
 
+            BasicRedisClientManager pooledClientManager = RedisClientManager.get();
+            using (IRedisClient redisClient = pooledClientManager.GetClient())
+            {
+                IRedisTypedClient<Configuration> redis = redisClient.As<Configuration>();
+                redis.SetEntry(config.AutoCompleteRoute, config);
+
+                Dictionary<string, string> dataObj = new Dictionary<string, string>();
+                dataObj["Code"] = "foo";
+                dataObj["Desc"] = "bar";
+                redisClient.Lists["cacheIndex:" + config.AutoCompleteRoute].Add(dataObj[config.RecordIndentifier]);
+                redisClient.SetEntry("fullCache:" + config.AutoCompleteRoute + ":" + dataObj[config.RecordIndentifier], JsonConvert.SerializeObject(dataObj));
+
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:b", "foo", 0);
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:ba", "foo", 0);
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:bar", "foo", 0);
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:bar*", "foo", 0);
+
+                Dictionary<string, string> dataObj2 = new Dictionary<string, string>();
+                dataObj2["Code"] = "yo";
+                dataObj2["Desc"] = "barber";
+                redisClient.Lists["cacheIndex:" + config.AutoCompleteRoute].Add(dataObj2[config.RecordIndentifier]);
+                redisClient.SetEntry("fullCache:" + config.AutoCompleteRoute + ":" + dataObj2[config.RecordIndentifier], JsonConvert.SerializeObject(dataObj2));
+
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:b", "yo", 0);
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:ba", "yo", 0);
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:bar", "yo", 0);
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:barb", "yo", 0);
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:barbe", "yo", 0);
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:barber", "yo", 0);
+                redisClient.AddItemToSortedSet(config.AutoCompleteRoute + ":autocomplete:barber*", "yo", 0);
+            }
+
+            InfinityEngine.Business.InfinityEngine infinityEngine = new InfinityEngine.Business.InfinityEngine();
+            List<Dictionary<string, string>> results = infinityEngine.SearchAutoCompleteCache(config.AutoCompleteRoute, "ba", 50);
+            
+            Assert.IsTrue(results.Count == 1);
+        }
     }
 }

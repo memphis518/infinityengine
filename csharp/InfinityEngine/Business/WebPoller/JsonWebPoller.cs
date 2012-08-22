@@ -8,6 +8,7 @@ namespace InfinityEngine.Business.WebPoller
     public class JsonWebPoller : IWebPoller
     {
 
+        // Makes a web call to the URL and parses the Json response
         public object PollURL(string url)
         {
             WebRequest webRequest;
